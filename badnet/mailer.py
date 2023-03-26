@@ -3,6 +3,7 @@ from email.mime.text import MIMEText
 from badnet.sql_connection import badminton_db
 
 from .tournament import Tournament
+from badnet.utils import logger
 #from .emails.notification_email import notification_email
 #from .emails.notification_html_email import html_email
 

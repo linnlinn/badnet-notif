@@ -4,10 +4,13 @@ import html
 import re
 import pandas as pd
 from datetime import datetime
+import logging
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.select import Select
+
 
 from badnet.tournament import Tournament
 
@@ -18,6 +21,7 @@ class BadnetScraper:
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--window-size=1920x6080')
         chromedriver = os.getcwd() + "/chromedriver"
+
         self.driver = webdriver.Chrome(options = chrome_options, service=Service(chromedriver))
         self.tournaments = []
         self.tournaments_df = pd.DataFrame({'id':pd.Series(dtype='str'), 
@@ -33,33 +37,76 @@ class BadnetScraper:
         self.driver.get(self.url)
         time.sleep(10)
 
-        self.driver.find_element("id","btn_card").click()
-        time.sleep(3)
-        self.driver.find_element("id", "area_9").click()
-        self.driver.find_element("id", "btn_young").click()
-        self.driver.find_element("id", "btn_handi").click()
-        time.sleep(3)
-        result = self.driver.find_element("class name", "mod_prog_tournois")
-        tournaments = result.find_elements("class name", "bn-link-external")
-        for tournament in tournaments:
-            url = tournament.get_attribute("href")
-            name = html.unescape(tournament.find_element('class name', 'mod_prog_item_data_nom').text.split(']'))
-            departement = re.search('\[\d+\]', tournament.find_element('class name', 'mod_prog_item_data_nom').text).group(0)[1:-1]
-            titre = html.unescape(name[2]).rstrip()
-            date = tournament.find_element('class name', 'mod_prog_item_data_date').text
-            ville = tournament.find_element('class name', 'mod_prog_item_data_ville').text
-            self.tournaments.append(Tournament(name=titre, url=url, departement = departement, date=date, ville = ville))
-            self.tournaments_df = pd.concat([pd.DataFrame({
-                'id':url.split("=")[-1],
-                'name':titre,
-                'url':url,
-                'departement':departement,
-                'date':date,
-                'source':'badnet',
-                'description': '',
-                'date_publication':datetime.now()
-            }, index=[0]
-            ),self.tournaments_df.loc[:]]).reset_index(drop=True)
+        departements = {'75':'62','77':'63','78':'64','91':'65','92':'66','93':'67','94':'68','95':'69'}
+        for departement, departement_code in departements.items():
+            print(departement)
+            print("page d'acceuil chargée")
+            #ligue_selector = Select(self.driver.find_element("id","ligue"))
+            #ligue_selector.select_by_value('12')
+
+            departement_selector = Select(self.driver.find_element("id","departement"))
+            departement_selector.select_by_value(departement_code)
+            time.sleep(1)
+            
+
+            tournaments=self.driver.find_element('id', 'search_results').find_elements('class name', 'events')[0].find_elements('class name', 'row')
+            try:
+                pages = self.driver.find_element('class name', 'pager')
+                next_page = pages.find_element('xpath', '//a[text()="›"]')
+                pager="›" in pages.text
+                
+            except:
+                pager = False
+            
+            for tournament in tournaments:
+                url = tournament.get_attribute("href")
+                name = html.unescape(tournament.find_element('class name', 'name').text)
+                date = tournament.find_element('class name', 'date').text
+                ville = tournament.find_element('class name', 'location').text
+                self.tournaments.append(Tournament(name=name, url=url, departement = departement, date=date, ville = ville))
+                self.tournaments_df = pd.concat([pd.DataFrame({
+                    'id':url.split("=")[-1],
+                    'name':name,
+                    'url':url,
+                    'departement':departement,
+                    'date':date,
+                    'source':'badnet',
+                    'description': '',
+                    'date_publication':datetime.now()
+                }, index=[0]
+                ),self.tournaments_df.loc[:]]).reset_index(drop=True)
+
+            while pager:
+                next_page.click()    
+                time.sleep(3)
+                tournaments=self.driver.find_element('id', 'search_results').find_elements('class name', 'events')[0].find_elements('class name', 'row')
+                pages = self.driver.find_element('class name', 'pager')
+                try:
+                    next_page = pages.find_element('xpath', '//a[text()="›"]')
+                    pager="›" in pages.text
+                except:
+                    pager = False
+                
+                for tournament in tournaments:
+                    url = tournament.get_attribute("href")
+                    name = html.unescape(tournament.find_element('class name', 'name').text)
+                    date = tournament.find_element('class name', 'date').text
+                    ville = tournament.find_element('class name', 'location').text
+                    self.tournaments.append(Tournament(name=name, url=url, departement = departement, date=date, ville = ville))
+                    self.tournaments_df = pd.concat([pd.DataFrame({
+                        'id':url.split("=")[-1],
+                        'name':name,
+                        'url':url,
+                        'departement':departement,
+                        'date':date,
+                        'source':'badnet',
+                        'description': '',
+                        'date_publication':datetime.now()
+                    }, index=[0]
+                    ),self.tournaments_df.loc[:]]).reset_index(drop=True)
+                print(pages.text, pager)
+            
+            time.sleep(1)
 
     def quit(self):
         self.driver.quit()

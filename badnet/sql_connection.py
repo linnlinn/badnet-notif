@@ -1,5 +1,6 @@
 from decouple import config
 import sqlalchemy as db
+from badnet.utils import logger, args
 
 class SqlConnector:
     def __init__(self, db):
@@ -28,5 +29,8 @@ class SqlConnector:
             pool_pre_ping=True,
             pool_size=10
         )
-
-badminton_db = SqlConnector(db="badminton").get_engine()
+env = args.env
+if env=='prod':
+    badminton_db = SqlConnector(db="badminton").get_engine()
+else:
+    badminton_db = SqlConnector(db="badminton_dev").get_engine()
