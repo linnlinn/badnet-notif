@@ -17,5 +17,6 @@ if departements!='':
     put_text(f"Login successful for {data['login']}")
 
 departs = input_group(
-checkbox("Departements", options=["75", "77", "78"]) 
+checkbox("Departements", options=["75", "77", "78", "92", "93", "94", "95"], selected=True) 
 )
+put_text(departs["Departements"])

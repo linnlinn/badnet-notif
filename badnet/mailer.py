@@ -1,6 +1,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from badnet.sql_connection import badminton_db
+from sqlalchemy import text
 
 from .tournament import Tournament
 from badnet.utils import logger
@@ -79,8 +80,8 @@ Pour tout problème ou demande modification merci d'envoyer un mail à Arthur (a
                 AND (disciplines REGEXP '{"|".join(tournament.disciplines)}')
 
         """
-        
-        emails = badminton_db.execute(query).fetchall()
+        conn = badminton_db.connect()
+        emails = conn.execute(text(query)).fetchall()
         emails = [a[0] for a in emails ]
         return emails
 

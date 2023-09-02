@@ -37,6 +37,12 @@ class BadnetScraper:
         self.driver.get(self.url)
         time.sleep(10)
 
+        affichage = self.driver.find_element('class name', 'b-views')
+        affichage.find_elements('tag name','li')[2].click()
+    
+        time.sleep(5)
+        print('affichage => liste')
+
         departements = {'75':'62','77':'63','78':'64','91':'65','92':'66','93':'67','94':'68','95':'69'}
         for departement, departement_code in departements.items():
             print(departement)
@@ -46,10 +52,15 @@ class BadnetScraper:
 
             departement_selector = Select(self.driver.find_element("id","departement"))
             departement_selector.select_by_value(departement_code)
-            time.sleep(1)
+            time.sleep(5)
+
             
 
-            tournaments=self.driver.find_element('id', 'search_results').find_elements('class name', 'events')[0].find_elements('class name', 'row')
+            tournaments=self.driver.find_element('id', 'search_results').find_elements('class name', 'row')
+            #print(tournaments.text)
+            print(f"trouvé {len(tournaments)} tournois")
+            time.sleep(5)
+            #
             try:
                 pages = self.driver.find_element('class name', 'pager')
                 next_page = pages.find_element('xpath', '//a[text()="›"]')
@@ -78,8 +89,8 @@ class BadnetScraper:
 
             while pager:
                 next_page.click()    
-                time.sleep(3)
-                tournaments=self.driver.find_element('id', 'search_results').find_elements('class name', 'events')[0].find_elements('class name', 'row')
+                time.sleep(5)
+                tournaments=self.driver.find_element('id', 'search_results').find_elements('class name', 'row')
                 pages = self.driver.find_element('class name', 'pager')
                 try:
                     next_page = pages.find_element('xpath', '//a[text()="›"]')

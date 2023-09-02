@@ -8,6 +8,7 @@ import traceback
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from sqlalchemy import text
 
 from badnet.sql_connection import badminton_db
 from badnet.utils import logger
@@ -47,7 +48,12 @@ class Tournament:
         time.sleep(10)
         self.driver.find_element("xpath", "/html/body/div[2]/div/section/div/div/nav/ul/li[1]/span").click()
         time.sleep(5)
-        infos = self.driver.find_element("class name", "infos")
+        infos_tt = self.driver.find_elements("class name", "infos")
+        titre = infos_tt[0].find_element('tag name', 'h2').text
+        if titre == 'Informations pratiques':
+            infos = infos_tt[0]
+        else:
+            infos = infos_tt[len(infos_tt)-1]
         
         dates = self.driver.find_element("class name", "limit")
 
@@ -55,6 +61,7 @@ class Tournament:
             notes = self.driver.find_element("class name", "text")
             self.description = re.search('Notes des organisateurs\n((.*\n*)*)',notes.text).group(1)
         except Exception as e:
+            logger.error(f"Could not extract organizer's notes for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())
         ja = re.search('Juge-arbitre : (.+)', infos.text)
         self.ja = ja.group(1) if ja else 'unknown'
@@ -71,6 +78,7 @@ class Tournament:
             if self.disciplines==[]:
                 self.disciplines = ['simple', 'double', 'mixte']
         except Exception as e:
+            logger.error(f"Could not extract disciplines for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())
 
         try:
@@ -84,6 +92,7 @@ class Tournament:
             if self.age_group==[]:
                 self.age_group = ['jeunes', 'seniors', 'veterans']
         except Exception as e:
+            logger.error(f"Could not extract age groups for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())
 
         
@@ -99,11 +108,13 @@ class Tournament:
             if self.category == []:
                 self.category = [ 'N', 'R', 'D','P', 'NC']
         except Exception as e:
+            logger.error(f"Could not extract category for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())
         try:
             self.date_registration_opening = dates.text.split('\n')[1]
             self.date_registration_closed = dates.text.split('\n')[3]
         except Exception as e:
+            logger.error("Could not extract registration dates for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())    
 
         self.url_affiche = self.driver.find_element("class name", 'flex.top').find_element("tag name", "figure").find_element("tag name", "a").get_attribute("href")
@@ -111,7 +122,9 @@ class Tournament:
         self.driver.quit()
     
     def is_in_db(self):
-        if badminton_db.execute(f"SELECT True FROM tournaments WHERE id={self.id}").fetchone():
+        conn = badminton_db.connect()
+        result = conn.execute(text(f"SELECT True FROM tournaments WHERE id={self.id}")).fetchone()
+        if result:
             return True
         else:
             return False
