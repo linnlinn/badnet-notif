@@ -1,0 +1,45 @@
+cookie:
+  expiry_days: 30
+  key: random_signature_key
+  name: random_cookie_name
+credentials:
+  usernames:
+    aa:
+      email: aa
+      name: aa
+      password: $2b$12$5cOadpVOMnPsokCGCtqI/u9votMlB9.dseUzAoeKUe2.FvuHsXDvC
+    abossuet:
+      email: arthur.bossuet@gmail.com
+      name: Arthur Bossuet
+      password: $2b$12$fhXVrwUDnGb/8nyT0idOvetottmyAHCWlpu2WqqdN9eeU6Qds2v7S
+    beta:
+      email: qsdfqs
+      name: beta
+      password: $2b$12$4tW3aRCaTpUzSm.4c8gpvOqetpfgRPRjmtEHp2S4wV8JO4hxbhvFq
+    dd:
+      email: dd
+      name: dd
+      password: $2b$12$jUSKc72e8XdGAXMdUVYiQ.Y9P7PHC.U0rqvPD85Id9PpAQT7IC93y
+    test:
+      email: arthurbossuet@gmail.com
+      name: Titi
+      password: $2b$12$M6adW59ryIDYwALwWrjwluHa5Z5G55n9AiXmHywz2lYBWjG.ZGXQe
+    testuser:
+      email: qsmdlkfj
+      name: test user
+      password: $2b$12$tw.L3OqAfkL/48lFeN192.x6dkvP1gbzLfjHjGbJe3ASXR114JHnS
+    vb:
+      email: vitaliy.bushuev@gmail.com
+      name: Vitaliy Bushuev
+      password: $2b$12$8IBcEEcuPS0LZYlTBfGkbOWnQQFQt16kxzDjzijz8Sm3aKbEh28im
+    vbushuev:
+      email: vitaliy.bushuev@gmail.com
+      name: Vitaliy Bushuev
+      password: $2b$12$lI2X7vynrrMapx.TZW5dheIQdML6Cr5xiv46ZvUQm/xF6LudxzonC
+    yoyo:
+      email: azer
+      name: notnozn
+      password: $2b$12$ylKdgaiLcKYfz3VYVIfGU.EM8CpsHo38JmD9vyyVyW/ok7xo/fbRW
+preauthorized:
+  emails:
+  - annonces.tournois.bad@gmail.com

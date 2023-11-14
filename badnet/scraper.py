@@ -47,7 +47,7 @@ class BadnetScraper:
         time.sleep(15)
         print('affichage => liste')
 
-        departements = {'75':'62','77':'63','78':'64','91':'65','92':'66','93':'67','94':'68','95':'69'}
+        departements = {'75':'62','77':'63','78':'64','91':'65','92':'66','93':'67','94':'68','95':'69','60':'100'}
         for departement, departement_code in departements.items():
             print(departement)
             print("page d'acceuil chargée")
