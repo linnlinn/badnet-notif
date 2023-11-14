@@ -5,6 +5,7 @@ import re
 import pandas as pd
 from datetime import datetime
 import logging
+from decouple import config
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -13,6 +14,9 @@ from selenium.webdriver.support.select import Select
 
 
 from badnet.tournament import Tournament
+from badnet.mailer import Mailer
+
+gmail = Mailer(user = 'annonces.tournois.bad@gmail.com', password = config('PASSWORD'))
 
 class BadnetScraper:
     def __init__(self, url):
@@ -40,7 +44,7 @@ class BadnetScraper:
         affichage = self.driver.find_element('class name', 'b-views')
         affichage.find_elements('tag name','li')[2].click()
     
-        time.sleep(5)
+        time.sleep(15)
         print('affichage => liste')
 
         departements = {'75':'62','77':'63','78':'64','91':'65','92':'66','93':'67','94':'68','95':'69'}
@@ -52,14 +56,14 @@ class BadnetScraper:
 
             departement_selector = Select(self.driver.find_element("id","departement"))
             departement_selector.select_by_value(departement_code)
-            time.sleep(5)
+            time.sleep(15)
 
             
 
             tournaments=self.driver.find_element('id', 'search_results').find_elements('class name', 'row')
             #print(tournaments.text)
             print(f"trouvé {len(tournaments)} tournois")
-            time.sleep(5)
+            time.sleep(15)
             #
             try:
                 pages = self.driver.find_element('class name', 'pager')
@@ -89,7 +93,7 @@ class BadnetScraper:
 
             while pager:
                 next_page.click()    
-                time.sleep(5)
+                time.sleep(15)
                 tournaments=self.driver.find_element('id', 'search_results').find_elements('class name', 'row')
                 pages = self.driver.find_element('class name', 'pager')
                 try:

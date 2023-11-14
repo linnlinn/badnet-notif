@@ -16,6 +16,10 @@ print('start session')
 logger.info(msg=f"===========================================")
 logger.info(msg=f"start session at {datetime.now()}")
 logger.info(msg=f'Environment = {args.env}')
+
+gmail = Mailer(user = 'annonces.tournois.bad@gmail.com', password = config('PASSWORD'))
+print('mailer initialized successfully')
+
 badnet = BadnetScraper(url = "https://badnet.fr/accueil")
 print('start tournament extraction')
 if args.reload:
@@ -24,8 +28,7 @@ badnet.extract_tournaments()
 badnet.quit()
 logger.info(msg=f"Extracted {badnet.tournaments.__len__()} tournaments")
 print('end tournament extraction')
-gmail = Mailer(user = 'annonces.tournois.bad@gmail.com', password = config('PASSWORD'))
-print('mailer initialized successfully')
+
 
 for tournament in badnet.tournaments:
     if not tournament.is_in_db():

@@ -9,9 +9,13 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from sqlalchemy import text
+from decouple import config
 
 from badnet.sql_connection import badminton_db
 from badnet.utils import logger
+from badnet.error_mailer import Errormailer
+
+gmail_err = Errormailer(user = 'annonces.tournois.bad@gmail.com', password = config('PASSWORD'))
 
 class Tournament:
     def __init__(self, name: str, url: str, date: str, ville: str, departement = "99", source="badnet"):
@@ -63,6 +67,8 @@ class Tournament:
         except Exception as e:
             logger.error(f"Could not extract organizer's notes for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())
+            gmail_err.send_error_notification(error=f"Could not extract organizer's notes for {self.name} ID={self.id}")
+
         ja = re.search('Juge-arbitre : (.+)', infos.text)
         self.ja = ja.group(1) if ja else 'unknown'
         volant = re.search('Volant officiel : (.+)', infos.text)
@@ -80,6 +86,7 @@ class Tournament:
         except Exception as e:
             logger.error(f"Could not extract disciplines for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())
+            gmail_err.send_error_notification(error=f"Could not extract disciplines for {self.name} ID={self.id}")
 
         try:
             jeunes = infos.text.split('\n')[infos.text.split('\n').index('JEUNES SÉNIORS VÉTÉRANS HANDIBAD INCLUSIF')+1].split()[0]=='check'
@@ -94,7 +101,7 @@ class Tournament:
         except Exception as e:
             logger.error(f"Could not extract age groups for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())
-
+            gmail_err.send_error_notification(error=f"Could not extract age groups for {self.name} ID={self.id}")
         
         try:
             N = infos.text.split('\n')[-1].split()[0]=='check'
@@ -110,12 +117,14 @@ class Tournament:
         except Exception as e:
             logger.error(f"Could not extract category for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())
+            gmail_err.send_error_notification(error=f"Could not extract category for {self.name} ID={self.id}")
         try:
             self.date_registration_opening = dates.text.split('\n')[1]
             self.date_registration_closed = dates.text.split('\n')[3]
         except Exception as e:
             logger.error("Could not extract registration dates for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())    
+            gmail_err.send_error_notification(error=f"Could not extract registration dates for {self.name} ID={self.id}")
 
         self.url_affiche = self.driver.find_element("class name", 'flex.top').find_element("tag name", "figure").find_element("tag name", "a").get_attribute("href")
         

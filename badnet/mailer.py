@@ -1,10 +1,11 @@
 import smtplib
+import time
 from email.mime.text import MIMEText
-from badnet.sql_connection import badminton_db
 from sqlalchemy import text
 
-from .tournament import Tournament
-from badnet.utils import logger
+from badnet.sql_connection import badminton_db
+from badnet.tournament import Tournament
+#from badnet.utils import logger
 #from .emails.notification_email import notification_email
 #from .emails.notification_html_email import html_email
 
@@ -86,7 +87,27 @@ Pour tout problème ou demande modification merci d'envoyer un mail à Arthur (a
         return emails
 
     def send_error_notification(self, error):
-        pass
+        subject = f"Error de script Badnet: {error}"
+
+        body = f'''
+<p>&nbsp;</p>
+<p>Hello,</p>
+<p>&nbsp;</p>
+<div>Le script Badnet a rencontré une erreur :</div>
+<p>{error}</p>
+<p>{time.ctime()}</p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><br /><br /></p>
+<div>Cheers!</div>
+        '''
+
+        msg = MIMEText(body, 'html')
+        msg['Subject'] = subject
+        msg['From'] = "annonces.tournois.bad@gmail.com"
+        msg['To'] = ''#, '.join(destinataires)
+
+        self.send_mail(destinataires='arthur.bossuet@gmail.com', message = msg.as_string())
 
     def notify_html_tournament(self, tournament:Tournament):
         tournament.get_additional_info()
