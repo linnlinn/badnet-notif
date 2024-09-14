@@ -27,7 +27,8 @@ class SqlConnector:
         return db.create_engine(
             db.engine.url.URL.create(**params),
             pool_pre_ping=True,
-            pool_size=10
+            pool_size=30,
+            max_overflow=60
         )
 env = args.env
 if env=='prod':

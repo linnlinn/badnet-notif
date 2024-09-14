@@ -18,7 +18,7 @@ from badnet.error_mailer import Errormailer
 gmail_err = Errormailer(user = 'annonces.tournois.bad@gmail.com', password = config('PASSWORD'))
 
 class Tournament:
-    def __init__(self, name: str, url: str, date: str, ville: str, departement = "99", source="badnet"):
+    def __init__(self, name: str, url: str, date: str, ville: str, nb_participants:str, departement = "99", source="badnet"):
         self.name = name
         self.url = url
         self.id = url.split("=")[-1]
@@ -26,6 +26,7 @@ class Tournament:
         self.date = date
         self.description = ''
         self.category = [ 'N', 'R', 'D','P', 'NC']
+        self.list_classements = ['']
         self.disciplines = ['simple', 'double', 'mixte']
         self.age_group = ['jeunes', 'seniors', 'veterans']
         self.source = source
@@ -37,6 +38,10 @@ class Tournament:
         self.url_affiche='https://badnet.fr/Img/poster/affiche_default.png'
         self.volant = 'Non renseigné'
         self.date_publication = datetime.now()
+        if "/" in nb_participants:
+            self.max_participants = nb_participants.split('/')[1]
+        else:
+            self.max_participants = nb_participants
     
     def __repr__(self) -> str:
 
@@ -104,16 +109,19 @@ class Tournament:
             gmail_err.send_error_notification(error=f"Could not extract age groups for {self.name} ID={self.id}")
         
         try:
-            N = infos.text.split('\n')[-1].split()[0]=='check'
-            R = infos.text.split('\n')[-1].split()[1]=='check'
-            D = infos.text.split('\n')[-1].split()[2]=='check'
-            P = infos.text.split('\n')[-1].split()[3]=='check'
-            NC = infos.text.split('\n')[-1].split()[4]=='check'
+            classements = infos.text.split('\n')[-1]
+            N = 'N' in classements #=='check'
+            R = 'R' in classements #=='check'
+            D = 'D' in classements
+            P = 'P' in classements
+            NC = 'check' in classements
+
+            self.list_classements = [x for x in classements.split() if len(x) in (2,3)]
 
             categories = {'N': N, 'R': R, 'D': D, 'P': P, 'NC': NC}
             self.category = [key for key, value in categories.items() if value]
             if self.category == []:
-                self.category = [ 'N', 'R', 'D','P', 'NC']
+                self.category = ['N', 'R', 'D','P', 'NC']
         except Exception as e:
             logger.error(f"Could not extract category for {self.name} ID={self.id}")
             logger.error(traceback.format_exc())
@@ -151,7 +159,8 @@ class Tournament:
                 'date_publication': self.date_publication,
                 'disciplines' : ','.join(self.disciplines),
                 'agegroup': ','.join(self.age_group),
-                'categories': ','.join(self.category)
+                'categories': ','.join(self.category),
+                'participants': self.max_participants
                 }, index=[0]
                 )
             tournament.to_sql('tournaments', badminton_db, if_exists='append', index=False)

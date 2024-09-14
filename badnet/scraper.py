@@ -78,7 +78,11 @@ class BadnetScraper:
                 name = html.unescape(tournament.find_element('class name', 'name').text)
                 date = tournament.find_element('class name', 'date').text
                 ville = tournament.find_element('class name', 'location').text
-                self.tournaments.append(Tournament(name=name, url=url, departement = departement, date=date, ville = ville))
+                try:
+                    nb_participants = tournament.find_element('class name', 'count').text
+                except:
+                    nb_participants = '0'
+                self.tournaments.append(Tournament(name=name, url=url, departement=departement, date=date, ville=ville, nb_participants=nb_participants))
                 self.tournaments_df = pd.concat([pd.DataFrame({
                     'id':url.split("=")[-1],
                     'name':name,
@@ -107,7 +111,11 @@ class BadnetScraper:
                     name = html.unescape(tournament.find_element('class name', 'name').text)
                     date = tournament.find_element('class name', 'date').text
                     ville = tournament.find_element('class name', 'location').text
-                    self.tournaments.append(Tournament(name=name, url=url, departement = departement, date=date, ville = ville))
+                    try:
+                        nb_participants=tournament.find_element('class name', 'count').text
+                    except:
+                        nb_participants='0'
+                    self.tournaments.append(Tournament(name=name, url=url, departement=departement, date=date, ville=ville, nb_participants=nb_participants))
                     self.tournaments_df = pd.concat([pd.DataFrame({
                         'id':url.split("=")[-1],
                         'name':name,

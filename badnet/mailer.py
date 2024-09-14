@@ -129,7 +129,7 @@ Pour tout problème ou demande modification merci d'envoyer un mail à Arthur (a
 <div><strong>Dates :</strong> {tournament.date}</div>
 <div><strong>Ville :</strong> {tournament.ville}</div>
 <div><strong>Departement :</strong> {tournament.departement}</div>
-<div><strong>Ouvert aux classements :</strong> {', '.join(tournament.category)}</div>
+<div><strong>Ouvert aux classements :</strong> {', '.join(tournament.list_classements)}</div>
 <div><strong>Disciplines :</strong> {', '.join(tournament.disciplines)}</div>
 <p>&nbsp;</p>
 <h4>Presentation :</h4>
